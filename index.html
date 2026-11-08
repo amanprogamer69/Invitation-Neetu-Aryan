@@ -671,8 +671,8 @@ body.revealed .music-btn{opacity:1;pointer-events:auto}
 </footer>
 </main>
 
-<audio id="bgm" src="sahiba.mp3" loop preload="metadata" playsinline></audio>
-<button type="button" class="music-btn" id="music-btn" aria-pressed="false" aria-label="Turn music on" hidden>
+<audio id="bgm" src="sahiba.mp3" loop preload="none" playsinline></audio>
+<button type="button" class="music-btn" id="music-btn" aria-pressed="false" aria-label="Turn music on">
 <svg class="mb-off" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9.5v5h3.6L12 18.5v-13L7.6 9.5H4Z" fill="currentColor"/><path d="M15.5 9.2l5 5.6M20.5 9.2l-5 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
 <span class="mb-on" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
 </button>
@@ -823,12 +823,13 @@ setInterval(function(){if(!document.hidden)playVisible();},2500);
 var bgm=document.getElementById('bgm'),musicBtn=document.getElementById('music-btn'),musicWanted=false,musicResume=false;
 function setMusicUI(on){musicBtn.classList.toggle('on',on);musicBtn.setAttribute('aria-pressed',on?'true':'false');musicBtn.setAttribute('aria-label',on?'Turn music off':'Turn music on');}
 function fadeMusic(to,ms,done){var from=bgm.volume,t0=performance.now();(function f(n){var k=Math.min(1,(n-t0)/ms);try{bgm.volume=from+(to-from)*k;}catch(e){}if(k<1)requestAnimationFrame(f);else if(done)done();})(t0);}
-function playMusic(){try{bgm.volume=0;}catch(e){}var p=bgm.play();if(p&&p.then)p.then(function(){setMusicUI(true);fadeMusic(.8,900);}).catch(function(){setMusicUI(false);});}
+function giveUp(){if(window.console)console.warn('sahiba.mp3 could not be loaded - check that it is in the same folder as index.html');musicBtn.hidden=true;}
+function retryOnTap(){var once=function(){document.removeEventListener('touchend',once,true);document.removeEventListener('click',once,true);if(musicWanted&&bgm.paused)playMusic();};document.addEventListener('touchend',once,true);document.addEventListener('click',once,true);}
+function playMusic(){try{bgm.volume=0;}catch(e){}var p=bgm.play();
+if(p&&p.then)p.then(function(){setMusicUI(true);fadeMusic(.8,900);}).catch(function(err){setMusicUI(false);if(bgm.error||(err&&err.name==='NotSupportedError'))giveUp();else retryOnTap();});}
 function stopMusic(){fadeMusic(0,350,function(){bgm.pause();setMusicUI(false);});}
-function startMusic(){if(musicBtn.hidden)return;musicWanted=true;bgm.preload='auto';playMusic();}
-bgm.addEventListener('loadedmetadata',function(){musicBtn.hidden=false;});
-bgm.addEventListener('error',function(){musicBtn.hidden=true;});
-if(bgm.readyState>=1)musicBtn.hidden=false;
+function startMusic(){musicWanted=true;bgm.preload='auto';playMusic();}
+bgm.addEventListener('error',function(){giveUp();});
 musicBtn.addEventListener('click',function(e){e.stopPropagation();if(bgm.paused){musicWanted=true;playMusic();}else{musicWanted=false;stopMusic();}});
 document.addEventListener('visibilitychange',function(){if(document.hidden){if(!bgm.paused){musicResume=true;bgm.pause();setMusicUI(false);}}else if(musicResume&&musicWanted){musicResume=false;playMusic();}else{musicResume=false;}});
 
