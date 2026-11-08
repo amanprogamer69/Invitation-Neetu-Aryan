@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* deterrent: no right-click menu, no developer / view-source / save shortcuts */
+(function(){
+function stop(e){e.preventDefault();e.stopPropagation();return false;}
+document.addEventListener('contextmenu',stop,true);
+document.addEventListener('dragstart',function(e){var t=e.target&&e.target.tagName;if(t==='IMG'||t==='VIDEO'||t==='CANVAS'||t==='A')stop(e);},true);
+document.addEventListener('keydown',function(e){
+var c=e.ctrlKey||e.metaKey,code=e.code;
+if(e.key==='F12'||e.keyCode===123)return stop(e);
+if(c&&e.shiftKey&&(code==='KeyI'||code==='KeyJ'||code==='KeyC'||code==='KeyK'||code==='KeyE'))return stop(e);
+if(c&&e.altKey&&(code==='KeyI'||code==='KeyJ'||code==='KeyC'||code==='KeyU'))return stop(e);
+if(c&&!e.shiftKey&&!e.altKey&&(code==='KeyU'||code==='KeyS'))return stop(e);
+},true);
+})();
+</script>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Dr. Neetu Yadav &amp; Dr. Aryan Yadav — Wedding Invitation</title>
@@ -438,6 +454,7 @@ body.revealed .music-btn{opacity:1;pointer-events:auto}
 @keyframes mbBar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 .music-btn.on .mb-off{display:none}.music-btn.on .mb-on{display:flex}
 @media (prefers-reduced-motion:reduce){.music-btn .mb-on i{animation:none;transform:none}}
+img,video,canvas{-webkit-touch-callout:none;-webkit-user-drag:none;user-drag:none}
 </style>
 </head>
 <body class="locked">
